@@ -103,7 +103,7 @@ exports.config = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'trace',
+    logLevel: 'warn',
     //
     // Set specific log levels per logger
     // loggers:
@@ -174,9 +174,9 @@ exports.config = {
     jasmineOpts: {
         // Jasmine default timeout
         defaultTimeoutInterval: 60000,
-        oneFailurePerSpec: true,
-        failFast: true,
-        stopOnSpecFailure: true,
+        //oneFailurePerSpec: true,
+        //failFast: true,
+        //stopOnSpecFailure: true,
         //
         // The Jasmine framework allows interception of each assertion in order to log the state of the application
         // or website depending on the result. For example, it is pretty handy to take a screenshot every time
@@ -199,28 +199,7 @@ exports.config = {
      * @param {Object} config wdio configuration object
      * @param {Array.<Object>} capabilities list of capabilities details
      */
-    // onPrepare: function (config, capabilities) {
-    // },
-    /**
-     * Gets executed before a worker process is spawned and can be used to initialise specific service
-     * for that worker as well as modify runtime environments in an async fashion.
-     * @param  {String} cid      capability id (e.g 0-0)
-     * @param  {[type]} caps     object containing capabilities for session that will be spawn in the worker
-     * @param  {[type]} specs    specs to be run in the worker process
-     * @param  {[type]} args     object that will be merged with the main configuration once worker is initialised
-     * @param  {[type]} execArgv list of string arguments passed to the worker process
-     */
-    // onWorkerStart: function (cid, caps, specs, args, execArgv) {
-    // },
-    /**
-     * Gets executed just before initialising the webdriver session and test framework. It allows you
-     * to manipulate configurations depending on the capability or spec.
-     * @param {Object} config wdio configuration object
-     * @param {Array.<Object>} capabilities list of capabilities details
-     * @param {Array.<String>} specs List of spec file paths that are to be run
-     */
-    beforeSession: async function (config, capabilities, specs) {
-        global.runts = Date.now();
+    onPrepare: function (config, capabilities) {
 
         let nonBuiltInReturnCommands = [
             'click', 'doubleClick', 'addValue', 'setValue', 'clearValue',
@@ -232,7 +211,7 @@ exports.config = {
             '$', '$$', 'getText', 'getValue', 'getAttribute', 'getHTML', 'getSize',
             'getTagName', 'isClickable', 'isDisplayed', 'isExisting', 'isEnabled', 'isSelected',
             'isEqual', 'isFocused', 'nextElement', 'parentElement', 'previousElement',
-            'getDisplayed'
+            'getDisplayed', 'get'
         ];
         for(let cmd of nonBuiltInReturnCommands) {
             Object.defineProperty(Promise.prototype, cmd, {
@@ -253,7 +232,7 @@ exports.config = {
                 }
             });
         }
-
+        
         Object.defineProperty(Array.prototype, 'getDisplayed', {
             enumerable: false,
             value: async function(timeout = 60000) {
@@ -272,6 +251,38 @@ exports.config = {
                 }, {timeout});
             }
         });
+
+        Object.defineProperty(Array.prototype, 'get', {
+            enumerable: false,
+            value: async function(index, timeout = 60000) {
+                if (this.length > index) return this[index];
+                return await browser.waitUntil(async () => {
+                    const elems = await $$(this.selector);
+                    return (elems.length > index) ? elems[index] : false;
+                }, {timeout});
+            }
+        });
+    },
+    /**
+     * Gets executed before a worker process is spawned and can be used to initialise specific service
+     * for that worker as well as modify runtime environments in an async fashion.
+     * @param  {String} cid      capability id (e.g 0-0)
+     * @param  {[type]} caps     object containing capabilities for session that will be spawn in the worker
+     * @param  {[type]} specs    specs to be run in the worker process
+     * @param  {[type]} args     object that will be merged with the main configuration once worker is initialised
+     * @param  {[type]} execArgv list of string arguments passed to the worker process
+     */
+    // onWorkerStart: function (cid, caps, specs, args, execArgv) {
+    // },
+    /**
+     * Gets executed just before initialising the webdriver session and test framework. It allows you
+     * to manipulate configurations depending on the capability or spec.
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {Array.<String>} specs List of spec file paths that are to be run
+     */
+    beforeSession: async function (config, capabilities, specs) {
+        global.runts = Date.now();
     },
     /**
      * Gets executed before test execution begins. At this point you can access to all global

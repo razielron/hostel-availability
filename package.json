@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "wdio": "wdio run wdio.conf.js --suite hostel"
+        "wdio": "wdio run wdio.conf.js --suite hostel",
+        "cron": "node cron.js"
     },
     "repository": {
         "type": "git",
@@ -30,6 +31,8 @@
         "wdio-chromedriver-service": "^7.3.2"
     },
     "dependencies": {
+        "child_process": "^1.0.2",
+        "cron": "^1.8.2",
         "node-telegram-bot-api": "^0.56.0"
     }
 }
