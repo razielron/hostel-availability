@@ -54,6 +54,7 @@ for (let i = 0; i < 20; i++) {
                     console.log({ roomsText })
                     if (roomsText.includes('Private')) {
                         console.log("MATCH!!!!!!!!!!!!!!!!!");
+                        currentDate.roomName = roomsText;
                         console.log({ currentDate });
                         telegram.send(currentDate);
                     }

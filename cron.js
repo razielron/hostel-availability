@@ -3,7 +3,7 @@ const { spawn } = require("child_process");
 
 let defaultMin = process.env.CRON_MIN_START || '0';
 defaultMin = 56
-let cronTime = `0 ${defaultMin} 8-00/1 * * *`;
+let cronTime = `0 ${defaultMin} */1 * * *`;
 console.log({ cronTime });
 printCurrentTime();
 
